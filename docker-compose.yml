@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nexlearn-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nexlearn_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - nexlearn-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexlearn-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nexlearn_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - nexlearn-network
+
+networks:
+  nexlearn-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
